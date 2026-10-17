@@ -65,6 +65,7 @@ Das Skript liest `config/adv360.keymap` und die Tastenpositionen aus
 | `js/uebungen.js` | Sätze und Symbol-Schnipsel |
 | `tools/export_layouts.py` | Export aus der ZMK-Keymap |
 | `tools/import_leipzig.py` | erzeugt `js/woerter.js` aus einer Leipziger Wortliste |
+| `tools/eigennamen.txt` | Personen, Firmen und Orte, die nicht in die Wortliste kommen |
 
 Die Idee – Wörter statt Buchstabensalat, neue Buchstaben erst bei sicherem Tempo – ist
 angelehnt an Trainer wie typista.de und keybr.com.
@@ -82,7 +83,8 @@ kommerzielle Nutzung, mit Namensnennung. Zitat:
 > D. Goldhahn, T. Eckart, U. Quasthoff: *Building Large Monolingual Dictionaries at the Leipzig
 > Corpora Collection: From 100 to 200 Languages.* Proceedings of LREC 2012.
 
-Neu erzeugen (Wortdatei aus dem Download-Archiv):
+Neu erzeugen (Wortdatei aus dem Download-Archiv); Eigennamen aus `tools/eigennamen.txt`
+werden dabei übersprungen, die Lücken füllen die nächsthäufigen Wörter:
 
 ```shell
 python3 tools/import_leipzig.py deu_mixed-typical_2011_1M-words.txt 10000

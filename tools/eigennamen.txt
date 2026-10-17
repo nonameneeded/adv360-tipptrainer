@@ -1,0 +1,45 @@
+# Eigennamen, die tools/import_leipzig.py aus der Wortliste herausfiltert.
+# Wörter durch Leerzeichen oder Zeilenumbruch getrennt, # leitet Kommentare ein, Groß-/Kleinschreibung zählt.
+# Wörter, die auch ein gewöhnliches Wort sind (Müller, Fischer, Koch, Richter, Kaiser),
+# und Einwohnerbezeichnungen (Berliner, Franzosen) bleiben in der Liste.
+
+# Personen
+Adam Albert Albrecht Alex Alexander Alfred Andrea Andreas Angela Anja Anna Anne Anton Axel Ballack
+Barbara Beck Becker Benjamin Berger Berlusconi Bernd Bernhard Bill Birgit Boris Brigitte Brown
+Bruno Buffy Bush Carl Chris Christian Christine Christoph Christus Claudia Clement Clinton Daniel
+David Dennis Dieter Dietrich Dirk Elisabeth Erich Erwin Eva Federer Felix Florian Frank Franz
+Friedrich Fritz Gabriel Gabriele Georg George Gerd Gerhard Gregor Guido Günter Günther Gysi Haas
+Hamilton Hans Harald Harry Hartmut Heike Heiko Heinrich Heinz Helmut Herbert Hermann Hitler
+Hoffmann Holger Horst Ingo Ingrid Jack Jackson Jakob James Jan Jens Jesu Jesus Joachim Jochen
+Johann Johannes John Jones Jörg Josef Joseph Julia Jürgen Karin Karl Katharina Katrin Kevin Kim
+Klaus Klinsmann Konrad Kurt Lafontaine Lehmann Lisa Lothar Löw Ludwig Lukas Lutz Manfred Marc Marcel
+Marco Maria Mario Marion Markus Martin Martina Matthias Max Mehdorn Meier Merkel Meyer Michael
+Mike Möller Monika Morgan Müntefering Norbert Obama Olaf Oliver Oskar Otto Patrick Paul Peter Peters
+Petra Philipp Putin Rainer Ralf Reinhard Renate Richard Robert Roland Rolf Roth Rudi Rudolf
+Rüttgers Sabine Sandra Sarkozy Scharping Schäuble Schily Schmid Schmidt Schmitt Scholz Schröder
+Schulz Schumacher Sebastian Seehofer Siegfried Simon Simone Stefan Steffen Steinbrück Steinmeier
+Stephan Stoiber Struck Susanne Sven Thomas Thorsten Tim Tobias Tom Udo Ulrich Ulrike Ursula Uwe
+Volker Wagner Walter Werner Westerwelle Wilhelm Willi Williams Wolfgang
+
+# Firmen, Marken, Organisationen
+Airbus Amazon Apple Arcandor Audi Bayer Berlinale Borussia Citigroup Commerzbank Continental
+Daimler Dax Dow Facebook Ferrari Fiat Ford Google Greenpeace Hamas Handelsblatt Henkel Hertha
+Infineon Intel Linux Lufthansa Mercedes Microsoft Nasdaq Nokia Opel Porsche Postbank Renault
+Schalke Siemens Sony Taliban Telekom Toyota Verdi Volkswagen Werder Windows Yahoo
+
+# Orte, Länder, Regionen
+Aachen Afghanistan Afrika Ägypten Alpen Amerika Amsterdam Argentinien Asien Athen Augsburg
+Australien Bagdad Barcelona Basel Bayern Belgien Berlin Berlins Bielefeld Bochum Bonn Brandenburg
+Brasilien Braunschweig Bremen Brüssel Budapest Chemnitz China Chinas Cottbus Dänemark Darmstadt
+Deutschland Deutschlands Dortmund Dresden Duisburg Düsseldorf England Erfurt Europa Europas
+Finnland Frankfurt Frankreich Freiburg Georgien Göppingen Göttingen Griechenland Großbritannien
+Hagen Hamburg Hannover Heidelberg Hessen Holland Hollywood Hongkong Indien Ingolstadt Irak Iran
+Irland Island Israel Istanbul Italien Japan Jena Jerusalem Kabul Kaiserslautern Kalifornien Kanada
+Karlsruhe Kassel Koblenz Köln Kroatien Kuba Leipzig Leverkusen London Lübeck Luxemburg Madrid
+Magdeburg Mainz Mallorca Mannheim Mars Mexiko Mönchengladbach Moskau München Neuseeland Neustadt
+New Niederlande Niedersachsen Nordkorea Norwegen Nürnberg Offenbach Oldenburg Osnabrück
+Ostdeutschland Österreich Osteuropa Ostsee Pakistan Paris Peking Polen Portugal Potsdam Prag
+Regensburg Reutlingen Rom Rostock Rumänien Rußland Russland Saarbrücken Sachsen Salzburg
+Salzgitter Schwaben Schweden Schweiz Schwerin Serbien Shanghai Spanien Stuttgart Südafrika
+Südkorea Teheran Tel Thailand Thüringen Tokio Tschechien Tübingen Türkei Ulm Ungarn Vatikan
+Washington Weimar Wiebelskirchen Wien Wiesbaden Wolfsburg York Zürich

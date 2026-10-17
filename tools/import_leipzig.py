@@ -7,6 +7,7 @@ Die Datei <korpus>-words.txt liegt im Download-Archiv (wortschatz.uni-leipzig.de
 Format pro Zeile: ID <Tab> Wort <Tab> Häufigkeit. Übernommen werden die häufigsten Wörter,
 die nur aus deutschen Buchstaben bestehen und höchstens am Anfang groß geschrieben sind
 (keine Abkürzungen wie EU oder CDU). Von „Das“/„das“ bleibt eine Schreibung (klein, außer bei Nomen).
+Eigennamen (Personen, Firmen, Orte) aus tools/eigennamen.txt werden übersprungen.
 """
 import json
 import os
@@ -18,6 +19,8 @@ ANZAHL = int(sys.argv[2]) if len(sys.argv) > 2 else 10000
 KORPUS = os.path.basename(QUELLE).replace("-words.txt", "")
 OUT = os.path.join(os.path.dirname(__file__), "..", "js", "woerter.js")
 WORT = re.compile(r"^[A-ZÄÖÜa-zäöüß][a-zäöüß]+$")
+with open(os.path.join(os.path.dirname(__file__), "eigennamen.txt"), encoding="utf-8") as f:
+    EIGENNAMEN = {w for zeile in f for w in zeile.split("#")[0].split()}
 
 eintraege = []
 with open(QUELLE, encoding="utf-8") as f:
@@ -41,7 +44,8 @@ for formen in gruppen.values():
         wahl = klein
     else:
         wahl = gross
-    woerter.append((sum(formen.values()), wahl))
+    if wahl not in EIGENNAMEN:
+        woerter.append((sum(formen.values()), wahl))
 woerter.sort(key=lambda e: -e[0])
 woerter = [w for _, w in woerter[:ANZAHL]]
 
@@ -52,7 +56,8 @@ with open(OUT, "w", encoding="utf-8") as f:
 // Lizenz dieser Datei: CC BY-NC, siehe https://wortschatz.uni-leipzig.de/de/usage
 // Zitat:  D. Goldhahn, T. Eckart, U. Quasthoff: Building Large Monolingual Dictionaries at the
 //         Leipzig Corpora Collection: From 100 to 200 Languages. LREC 2012.
-// Erzeugt mit tools/import_leipzig.py (nur Wörter aus deutschen Buchstaben, keine Abkürzungen).
+// Erzeugt mit tools/import_leipzig.py (nur Wörter aus deutschen Buchstaben, keine Abkürzungen,
+// ohne die Eigennamen aus tools/eigennamen.txt).
 window.WOERTER = {json.dumps(woerter, ensure_ascii=False)};
 """)
 print(f"{len(woerter)} Wörter geschrieben, die ersten: {' '.join(woerter[:30])}")

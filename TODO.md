@@ -3,10 +3,10 @@
 - [ ] Testskript (Headless-Browser) ins Repo, damit sich Änderungen automatisch prüfen lassen.
 - [ ] Optional: Korrektur mit Rücktaste im Test-Modus.
 
-- [ ] Eigennamen (Carl, Dennis …) aus der Wortliste filtern.
 
 ## Erledigt
 
+- [x] Eigennamen (Personen, Firmen, Orte) aus der Wortliste gefiltert, Liste in tools/eigennamen.txt.
 - [x] Heatmap der Bildschirmtastatur (Tempo und Fehler je Taste).
 - [x] Verlauf über 30 Tage (Übungszeit, Tempo, Test) in der Auswertung.
 - [x] Wortliste aus der Leipzig Corpora Collection (deu_mixed-typical_2011_1M, 10 000 Wörter,
