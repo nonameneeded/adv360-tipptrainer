@@ -9,10 +9,13 @@ Die Belegung stammt direkt aus der Keymap im Repo
 [Adv360-Pro-ZMK](https://github.com/nonameneeded/Adv360-Pro-ZMK) (Branch `deutsch`,
 Ebenen Basis, Bone und Symbol).
 
+**Direkt im Browser: [nonameneeded.github.io/adv360-tipptrainer](https://nonameneeded.github.io/adv360-tipptrainer/)**
+
 ## Benutzen
 
-`index.html` im Browser öffnen – fertig. Es gibt keinen Server und keinen Build-Schritt; der
-Fortschritt wird nur lokal im Browser gespeichert (`localStorage`).
+Online aufrufen (Link oben) oder lokal `index.html` im Browser öffnen – fertig. Es gibt keinen
+Server und keinen Build-Schritt; der Fortschritt wird nur lokal im Browser gespeichert
+(`localStorage`), auch bei der Online-Version.
 
 - **Layout**: QWERTZ oder Bone. Die Tastatur muss im selben Modus sein (Bone: Mod + B),
   das Betriebssystem bleibt auf Deutsch (QWERTZ).
