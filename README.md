@@ -56,3 +56,9 @@ Das Skript liest `config/adv360.keymap` und die Tastenpositionen aus
 
 Die Idee – Wörter statt Buchstabensalat, neue Buchstaben erst bei sicherem Tempo – ist
 angelehnt an Trainer wie typista.de und keybr.com.
+
+## Lizenz
+
+Der Code steht unter der [MIT-Lizenz](LICENSE). Die Wortliste `js/woerter.js` ist selbst
+geschrieben. Wird sie später durch Daten der Leipzig Corpora Collection ersetzt, gilt für
+diese Datei deren Lizenz (CC BY-NC); Quelle und Zitat stehen dann im Dateikopf.
