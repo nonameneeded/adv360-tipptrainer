@@ -6,7 +6,8 @@ wahlweise **QWERTZ** oder **Bone**. Die Bildschirmtastatur zeigt die echte Form 
 Shift oder eine Symbol-Taste (Macro2/Macro4) gehalten werden muss.
 
 Die Belegung stammt direkt aus der Keymap im Repo
-[`adv360-neu`](../adv360-neu) (Ebenen Basis, Bone und Symbol).
+[Adv360-Pro-ZMK](https://github.com/nonameneeded/Adv360-Pro-ZMK) (Branch `deutsch`,
+Ebenen Basis, Bone und Symbol).
 
 ## Benutzen
 
@@ -35,10 +36,10 @@ Bildschirmtastatur und das Ziel-Tempo (Standard 150 Anschläge/min) einstellen.
 
 ## Belegung aktualisieren
 
-Nach einer Änderung an der Keymap:
+Nach einer Änderung an der Keymap, mit dem Pfad zu einem lokalen Klon des Keymap-Repos:
 
 ```shell
-python3 tools/export_layouts.py ../adv360-neu
+python3 tools/export_layouts.py ../Adv360-Pro-ZMK
 ```
 
 Das Skript liest `config/adv360.keymap` und die Tastenpositionen aus

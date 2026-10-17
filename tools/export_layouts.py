@@ -1,7 +1,8 @@
 """Exportiert QWERTZ- und Bone-Belegung des Adv360 aus der ZMK-Keymap nach js/layouts.js.
 
-Aufruf (aus dem Repo-Verzeichnis):
-    python3 tools/export_layouts.py ../adv360-neu
+Aufruf (aus dem Repo-Verzeichnis), mit dem Pfad zu einem Klon von
+https://github.com/nonameneeded/Adv360-Pro-ZMK (Branch deutsch):
+    python3 tools/export_layouts.py ../Adv360-Pro-ZMK
 
 Gelesen werden config/adv360.keymap (Ebenen default_layer, bone, symbol) und
 config/boards/arm/adv360/adv360-layouts.dtsi (Lage der Tasten). Ergebnis: für jede
@@ -14,7 +15,9 @@ import re
 import sys
 import time
 
-ZMK = sys.argv[1] if len(sys.argv) > 1 else "../adv360-neu"
+if len(sys.argv) != 2:
+    sys.exit("Aufruf: python3 tools/export_layouts.py <Pfad zum Keymap-Repo>")
+ZMK = sys.argv[1]
 OUT = os.path.join(os.path.dirname(__file__), "..", "js", "layouts.js")
 
 src = open(os.path.join(ZMK, "config/adv360.keymap"), encoding="utf-8").read()
