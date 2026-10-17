@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adv360 Tipptrainer</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="leiste">
+    <h1>Adv360 Tipptrainer</h1>
+    <div class="gruppe" id="layoutwahl" role="radiogroup" aria-label="Layout">
+      <button data-layout="qwertz">QWERTZ</button>
+      <button data-layout="bone">Bone</button>
+    </div>
+    <div class="gruppe" id="moduswahl" role="radiogroup" aria-label="Übung">
+      <button data-modus="lernen">Lernen</button>
+      <button data-modus="saetze">Sätze</button>
+      <button data-modus="symbole">Symbole</button>
+      <button data-modus="test">Test 1 min</button>
+    </div>
+    <button id="einstellungen-knopf" class="dezent" aria-expanded="false">Einstellungen</button>
+  </header>
+
+  <section id="einstellungen" hidden>
+    <label><input type="checkbox" id="opt-gross"> Groß-/Kleinschreibung</label>
+    <label><input type="checkbox" id="opt-satzzeichen"> Satzzeichen einstreuen</label>
+    <label><input type="checkbox" id="opt-tastatur"> Tastatur anzeigen</label>
+    <label>Ziel <input type="number" id="opt-ziel" min="60" max="600" step="10"> Anschläge/min</label>
+    <button id="zuruecksetzen" class="dezent">Fortschritt dieses Layouts löschen</button>
+  </section>
+
+  <main>
+    <section class="werte">
+      <div><span id="wert-tempo">–</span><small>Anschläge/min</small></div>
+      <div><span id="wert-genau">–</span><small>Genauigkeit</small></div>
+      <div><span id="wert-heute">0:00</span><small>heute geübt</small></div>
+      <div id="wert-timer-box" hidden><span id="wert-timer">60</span><small>Sekunden</small></div>
+    </section>
+
+    <section id="buchstaben" aria-label="Freigeschaltete Buchstaben"></section>
+
+    <section id="text" tabindex="0" aria-live="polite"></section>
+    <p id="hinweis"></p>
+    <p id="meldung" role="status"></p>
+
+    <section id="tastatur" aria-hidden="true"></section>
+    <p id="layout-hinweis" class="dezent"></p>
+  </main>
+
+  <script src="js/layouts.js"></script>
+  <script src="js/woerter.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
