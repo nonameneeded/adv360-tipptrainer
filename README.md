@@ -51,14 +51,29 @@ Das Skript liest `config/adv360.keymap` und die Tastenpositionen aus
 | `index.html`, `css/style.css` | Oberfläche (hell/dunkel nach Systemeinstellung) |
 | `js/app.js` | Übungslogik, Statistik, Bildschirmtastatur |
 | `js/layouts.js` | erzeugt: Tasten, Finger und Wege zu jedem Zeichen |
-| `js/woerter.js` | Wortliste, Sätze und Symbol-Schnipsel |
+| `js/woerter.js` | die 10 000 häufigsten deutschen Wörter (Leipzig Corpora Collection, siehe Lizenz) |
+| `js/uebungen.js` | Sätze und Symbol-Schnipsel |
 | `tools/export_layouts.py` | Export aus der ZMK-Keymap |
+| `tools/import_leipzig.py` | erzeugt `js/woerter.js` aus einer Leipziger Wortliste |
 
 Die Idee – Wörter statt Buchstabensalat, neue Buchstaben erst bei sicherem Tempo – ist
 angelehnt an Trainer wie typista.de und keybr.com.
 
 ## Lizenz
 
-Der Code steht unter der [MIT-Lizenz](LICENSE). Die Wortliste `js/woerter.js` ist selbst
-geschrieben. Wird sie später durch Daten der Leipzig Corpora Collection ersetzt, gilt für
-diese Datei deren Lizenz (CC BY-NC); Quelle und Zitat stehen dann im Dateikopf.
+Der Code steht unter der [MIT-Lizenz](LICENSE).
+
+**Lizenz der Daten:** Die Wortliste `js/woerter.js` stammt aus der
+[Leipzig Corpora Collection](https://wortschatz.uni-leipzig.de) des Wortschatz-Projekts der
+Universität Leipzig (Korpus `deu_mixed-typical_2011_1M`) und steht unter
+**CC BY-NC** ([Nutzungsbedingungen](https://wortschatz.uni-leipzig.de/de/usage)): nur nicht
+kommerzielle Nutzung, mit Namensnennung. Zitat:
+
+> D. Goldhahn, T. Eckart, U. Quasthoff: *Building Large Monolingual Dictionaries at the Leipzig
+> Corpora Collection: From 100 to 200 Languages.* Proceedings of LREC 2012.
+
+Neu erzeugen (Wortdatei aus dem Download-Archiv):
+
+```shell
+python3 tools/import_leipzig.py deu_mixed-typical_2011_1M-words.txt 10000
+```
