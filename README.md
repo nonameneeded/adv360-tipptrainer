@@ -17,7 +17,7 @@ Online aufrufen (Link oben) oder lokal `index.html` im Browser öffnen – ferti
 Server und keinen Build-Schritt; der Fortschritt wird nur lokal im Browser gespeichert
 (`localStorage`), auch bei der Online-Version.
 
-- **Layout**: QWERTZ oder Bone. Die Tastatur muss im selben Modus sein (Bone: Mod + B),
+- **Layout**: Bone oder QWERTZ. Die Tastatur muss im selben Modus sein (Standard ist Bone, QWERTZ: Mod + B),
   das Betriebssystem bleibt auf Deutsch (QWERTZ).
 - **Lernen**: Start mit sechs häufigen Buchstaben (e n i s r a). Sobald alle freigeschalteten
   Buchstaben das Ziel-Tempo erreichen und weniger als 7 % Fehler haben, kommt der nächste dazu.

@@ -4,7 +4,7 @@ Aufruf (aus dem Repo-Verzeichnis), mit dem Pfad zu einem Klon von
 https://github.com/nonameneeded/Adv360-Pro-ZMK (Branch deutsch):
     python3 tools/export_layouts.py ../Adv360-Pro-ZMK
 
-Gelesen werden config/adv360.keymap (Ebenen default_layer, bone, symbol) und
+Gelesen werden config/adv360.keymap (Ebenen default_layer = Bone, qwertz, symbol) und
 config/boards/arm/adv360/adv360-layouts.dtsi (Lage der Tasten). Ergebnis: für jede
 Taste Position, Finger und Beschriftung, und für jedes Zeichen, welche Tasten man dafür
 drückt (Taste, ggf. Shift, ggf. Symbol-Taste halten).
@@ -28,7 +28,7 @@ layers = {
     m.group(1): [re.sub(r"\s+", " ", t) for t in re.findall(TOK, m.group(2))]
     for m in re.finditer(r"(\w+)\s*\{[^{}]*?bindings = <(.*?)>;", src, re.S)
 }
-for name in ("default_layer", "bone", "symbol"):
+for name in ("default_layer", "qwertz", "symbol"):
     assert len(layers[name]) == 76, (name, len(layers[name]))
 
 phys = open(os.path.join(ZMK, "config/boards/arm/adv360/adv360-layouts.dtsi"), encoding="utf-8").read()
@@ -116,7 +116,7 @@ def name_of(b):
 
 
 def layout(letters):
-    """letters: Ebene, die über der Basis liegt (Bone) oder None."""
+    """letters: Ebene, die über der Basis (Bone) liegt (QWERTZ) oder None."""
     base = [b if not letters or letters[i] == "&trans" else letters[i]
             for i, b in enumerate(layers["default_layer"])]
     labels, chars = [], {}
@@ -151,7 +151,7 @@ def layout(letters):
 
 data = {
     "keys": keys,
-    "layouts": {"qwertz": layout(None), "bone": layout(layers["bone"])},
+    "layouts": {"qwertz": layout(layers["qwertz"]), "bone": layout(None)},
     "special": {"shiftLeft": 46, "shiftRight": 59, "macro2": 34, "macro4": 39},
     "exported": time.strftime("%Y-%m-%d"),
 }

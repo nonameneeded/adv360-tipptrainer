@@ -315,7 +315,7 @@ function pruefeFreischaltung() {
 }
 
 function warneModus() {
-  const soll = opt.layout === "bone" ? "Bone (Mod + B, LEDs weiß)" : "QWERTZ (Mod + B ausschalten)";
+  const soll = opt.layout === "bone" ? "Bone (Mod + B ausschalten, LEDs aus)" : "QWERTZ (Mod + B, LEDs weiß)";
   $("meldung").textContent = `Die Tastatur scheint im anderen Modus zu sein – bitte auf ${soll} umschalten. ` +
     "Diese Anschläge zählen nicht als Fehler.";
   $("meldung").classList.add("warnung");
@@ -668,8 +668,8 @@ function zeichneAuswahl() {
   document.querySelectorAll("#ansichtwahl button").forEach((b) =>
     b.setAttribute("aria-checked", b.dataset.ansicht === opt.ansicht));
   $("layout-hinweis").textContent = opt.layout === "bone"
-    ? "Bone auf der Tastatur einschalten: Mod halten + B (LEDs weiß). Das Betriebssystem bleibt auf Deutsch (QWERTZ)."
-    : "Tastatur im QWERTZ-Modus (LEDs aus), Betriebssystem auf Deutsch (QWERTZ).";
+    ? "Tastatur im Bone-Modus (Standard, LEDs aus), Betriebssystem auf Deutsch (QWERTZ)."
+    : "QWERTZ auf der Tastatur einschalten: Mod halten + B (LEDs weiß). Das Betriebssystem bleibt auf Deutsch (QWERTZ).";
 }
 
 function allesNeu() {
