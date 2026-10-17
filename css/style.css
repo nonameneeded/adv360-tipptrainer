@@ -43,6 +43,11 @@ button {
 button[aria-checked="true"] { background: var(--akzent); color: #fff; }
 button.dezent { color: var(--leise); }
 .dezent { color: var(--leise); font-size: 14px; }
+#github {
+  display: inline-flex; padding: 6px; color: var(--leise);
+  border: 1px solid var(--linie); border-radius: 8px; background: var(--fl);
+}
+#github:hover { color: var(--text); }
 
 #auswertung {
   padding: 12px 16px 16px; background: var(--fl); border-bottom: 1px solid var(--linie); font-size: 14px;
