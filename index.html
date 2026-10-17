@@ -15,10 +15,12 @@
     </div>
     <div class="gruppe" id="moduswahl" role="radiogroup" aria-label="Übung">
       <button data-modus="lernen">Lernen</button>
+      <button data-modus="schwaechen">Schwächen</button>
       <button data-modus="saetze">Sätze</button>
       <button data-modus="symbole">Symbole</button>
       <button data-modus="test">Test 1 min</button>
     </div>
+    <button id="auswertung-knopf" class="dezent" aria-expanded="false">Auswertung</button>
     <button id="einstellungen-knopf" class="dezent" aria-expanded="false">Einstellungen</button>
   </header>
 
@@ -28,6 +30,12 @@
     <label><input type="checkbox" id="opt-tastatur"> Tastatur anzeigen</label>
     <label>Ziel <input type="number" id="opt-ziel" min="60" max="600" step="10"> Anschläge/min</label>
     <button id="zuruecksetzen" class="dezent">Fortschritt dieses Layouts löschen</button>
+  </section>
+
+  <section id="auswertung" hidden>
+    <h2>Verwechslungen</h2>
+    <div id="auswertung-inhalt"></div>
+    <button id="schwaechen-ueben">Schwächen gezielt üben</button>
   </section>
 
   <main>

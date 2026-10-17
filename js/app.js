@@ -38,7 +38,7 @@ const opt = laden(SPEICHER, {
 });
 let fort;                       // Fortschritt des aktiven Layouts
 function fortLaden() {
-  fort = laden(`${SPEICHER}.${opt.layout}`, { frei: START, tasten: {}, tage: {}, verlauf: [] });
+  fort = laden(`${SPEICHER}.${opt.layout}`, { frei: START, tasten: {}, tage: {}, verlauf: [], fehler: [] });
 }
 const heute = () => new Date().toISOString().slice(0, 10);
 const zielMs = () => 60000 / opt.ziel;
@@ -73,6 +73,59 @@ const freieBuchstaben = () => REIHENFOLGE.slice(0, fort.frei).split("");
 function fokus() {
   const frei = freieBuchstaben();
   return frei.reduce((a, b) => (stand(b) < stand(a) ? b : a));
+}
+
+// ---------------------------------------------------------------- Verwechslungen
+const MAX_FEHLERLISTE = 1000;
+const HALBWERT_TAGE = 7;            // ältere Verwechslungen zählen weniger
+const ANDERES = { qwertz: "bone", bone: "qwertz" };
+const ART = {
+  get gewohnheit() { return opt.layout === "bone" ? "alter QWERTZ-Griff" : "Bone-Griff"; },
+  nachbar: "Nachbartaste",
+  sonst: "sonstiger Fehler",
+  modus: "Tastatur im anderen Modus",
+};
+const zeichenAn = (layout, i) => (D.layouts[layout].labels[i].base || "").toLowerCase();
+
+// Wie ist der Fehler entstanden? soll = erwartetes Zeichen, ist = getipptes Zeichen
+function einordnen(soll, ist) {
+  const hier = D.layouts[opt.layout].chars[soll];
+  const dort = D.layouts[ANDERES[opt.layout]].chars[soll];
+  const ist_ = ist.toLowerCase();
+  if (!hier) return "sonst";
+  // richtige Taste gedrückt, aber die Tastatur steht im anderen Modus
+  if (zeichenAn(ANDERES[opt.layout], hier.key) === ist_ && ist_ !== soll.toLowerCase()) return "modus";
+  // die Taste, an der das Zeichen im anderen Layout liegt
+  if (dort && dort.key !== hier.key && zeichenAn(opt.layout, dort.key) === ist_) return "gewohnheit";
+  const getippt = D.layouts[opt.layout].chars[ist];
+  if (getippt) {
+    const a = D.keys[hier.key], b = D.keys[getippt.key];
+    if (Math.hypot(a.x - b.x, a.y - b.y) <= 150) return "nachbar";
+  }
+  return "sonst";
+}
+
+function gewicht(eintrag) {
+  return Math.pow(0.5, (Date.now() - eintrag.t) / (HALBWERT_TAGE * 864e5));
+}
+// Verwechslungen zusammengefasst: [{soll, ist, art, wert, anzahl}], die stärksten zuerst
+function verwechslungen() {
+  const paare = new Map();
+  for (const f of fort.fehler) {
+    if (f.art === "modus") continue;
+    const k = f.s + "\u0000" + f.g;
+    const p = paare.get(k) || { soll: f.s, ist: f.g, art: f.art, wert: 0, anzahl: 0 };
+    p.wert += gewicht(f);
+    p.anzahl++;
+    paare.set(k, p);
+  }
+  return [...paare.values()].sort((a, b) => b.wert - a.wert);
+}
+// Zeichen, die gezielt geübt werden sollten (meist verwechselt)
+function schwache(n = 4) {
+  const je = new Map();
+  for (const p of verwechslungen()) je.set(p.soll, (je.get(p.soll) || 0) + p.wert);
+  return [...je.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([z]) => z);
 }
 
 // ---------------------------------------------------------------- Übungstext
@@ -120,7 +173,37 @@ function zeileTest() {
   const haeufig = WOERTER.slice(0, 400).filter((w) => w.length > 1);
   return zeileAus(haeufig);
 }
+function zeileSchwaechen() {
+  const ziel = schwache().filter((z) => z !== " ");
+  if (!ziel.length) {
+    melde("Noch keine Verwechslungen gespeichert – erst ein paar Zeilen üben.");
+    return zeileLernen();
+  }
+  const buchstaben = ziel.filter((z) => /\p{L}/u.test(z)).map((z) => z.toLowerCase());
+  const zeichen = ziel.filter((z) => !/\p{L}/u.test(z));
+  const erlaubt = new Set(freieBuchstaben().concat(buchstaben));
+  const passend = WOERTER.filter((w) => wortPasst(w, erlaubt) &&
+    buchstaben.some((b) => w.toLowerCase().includes(b)));
+  const teile = [];
+  let laenge = 0;
+  while (laenge < ZEILE) {
+    let t;
+    if (buchstaben.length && passend.length >= 5 && (!zeichen.length || Math.random() < 0.7)) {
+      t = zufall(passend);
+      if (!opt.gross && !ziel.some((z) => z !== z.toLowerCase())) t = t.toLowerCase();
+    } else if (zeichen.length) {
+      const sym = window.SYMBOLE.filter((x) => zeichen.some((z) => x.includes(z)));
+      t = sym.length ? zufall(sym) : zufall(zeichen).repeat(2);
+    } else {
+      t = kunstwort(freieBuchstaben(), zufall(buchstaben));
+    }
+    teile.push(t);
+    laenge += t.length + 1;
+  }
+  return teile.join(" ");
+}
 function neueZeile() {
+  if (opt.modus === "schwaechen") return zeileSchwaechen();
   if (opt.modus === "saetze") return zeileAus(window.SAETZE);
   if (opt.modus === "symbole") return zeileAus(window.SYMBOLE);
   if (opt.modus === "test") return zeileTest();
@@ -131,6 +214,8 @@ function neueZeile() {
 let text = "", stelle = 0, falsch = false, fehlerStellen = new Set();
 let letzterAnschlag = null, zeileStart = null, zeileAnschlaege = 0, zeileFehler = 0;
 let testEnde = null, testTimer = null, summeAnschlaege = 0, summeFehler = 0;
+let letzte = [];               // Ergebnis der letzten Anschläge, für die Modus-Warnung
+const merke = (a) => { letzte = letzte.concat(a).slice(-6); };
 
 function starteZeile() {
   text = neueZeile();
@@ -153,6 +238,7 @@ function taste(e) {
   if (opt.modus === "test" && !testEnde) starteTest();
 
   if (e.key === soll) {
+    merke("ok");
     const ms = letzterAnschlag !== null && jetzt - letzterAnschlag < PAUSE_MS && !falsch
       ? jetzt - letzterAnschlag : null;
     if (soll !== " ") treffer(soll, ms);
@@ -163,7 +249,16 @@ function taste(e) {
     zeileAnschlaege++;
     if (stelle >= text.length) { zeileFertig(jetzt); return; }
   } else {
-    if (!falsch) { zeileFehler++; fehlgriff(soll); fehlerStellen.add(stelle); }
+    const art = einordnen(soll, e.key);
+    merke(art);
+    if (letzte.filter((a) => a === "modus").length >= 3) warneModus();
+    if (!falsch && art !== "modus") {
+      zeileFehler++;
+      fehlgriff(soll);
+      fehlerStellen.add(stelle);
+      fort.fehler.push({ s: soll, g: e.key, art, t: Date.now() });
+      if (fort.fehler.length > MAX_FEHLERLISTE) fort.fehler.splice(0, fort.fehler.length - MAX_FEHLERLISTE);
+    }
     falsch = true;
   }
   zeichneText();
@@ -183,6 +278,7 @@ function zeileFertig(jetzt) {
   if (opt.modus !== "test") zeigeWerte(tempo, genau);
   starteZeile();
   zeichneBuchstaben();
+  if (!$("auswertung").hidden) zeigeAuswertung();
 }
 
 function pruefeFreischaltung() {
@@ -192,6 +288,13 @@ function pruefeFreischaltung() {
     fort.frei++;
     melde(`Neuer Buchstabe: ${neu}`);
   }
+}
+
+function warneModus() {
+  const soll = opt.layout === "bone" ? "Bone (Mod + B, LEDs weiß)" : "QWERTZ (Mod + B ausschalten)";
+  $("meldung").textContent = `Die Tastatur scheint im anderen Modus zu sein – bitte auf ${soll} umschalten. ` +
+    "Diese Anschläge zählen nicht als Fehler.";
+  $("meldung").classList.add("warnung");
 }
 
 function zeitZaehlen(ms) {
@@ -323,7 +426,7 @@ function zeichneTastatur() {
 function zeichneBuchstaben() {
   const el = $("buchstaben");
   el.textContent = "";
-  el.hidden = opt.modus !== "lernen";
+  el.hidden = opt.modus !== "lernen" && opt.modus !== "schwaechen";
   const f = fokus();
   REIHENFOLGE.split("").forEach((z, i) => {
     const s = document.createElement("span");
@@ -353,6 +456,49 @@ function zeigeHeute() {
 }
 function melde(t) {
   $("meldung").textContent = t;
+  $("meldung").classList.remove("warnung");
+}
+
+// ---------------------------------------------------------------- Auswertung
+function zeigeAuswertung() {
+  const liste = verwechslungen().slice(0, 12);
+  const box = $("auswertung-inhalt");
+  box.textContent = "";
+  const alle = fort.fehler.filter((f) => f.art !== "modus");
+  if (!alle.length) {
+    box.textContent = "Noch keine Fehler gespeichert. Übe ein paar Zeilen, dann erscheint hier, was du womit verwechselst.";
+    return;
+  }
+  const arten = {};
+  for (const f of alle) arten[f.art] = (arten[f.art] || 0) + 1;
+  const p = document.createElement("p");
+  p.textContent = `${alle.length} Fehler gespeichert: ` + Object.entries(arten)
+    .sort((a, b) => b[1] - a[1])
+    .map(([a, n]) => `${Math.round(100 * n / alle.length)} % ${ART[a]}`).join(", ") + ".";
+  box.appendChild(p);
+
+  const tab = document.createElement("table");
+  tab.innerHTML = "<thead><tr><th>Gesucht</th><th>Getippt</th><th>Wie oft</th><th>Wahrscheinlich</th></tr></thead>";
+  const tb = document.createElement("tbody");
+  const zeigeZ = (z) => (z === " " ? "␣" : z);
+  for (const v of liste) {
+    const tr = document.createElement("tr");
+    for (const t of [zeigeZ(v.soll), zeigeZ(v.ist), v.anzahl + "×", ART[v.art]]) {
+      const td = document.createElement("td");
+      td.textContent = t;
+      tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+  tab.appendChild(tb);
+  box.appendChild(tab);
+  const s = schwache().filter((z) => z !== " ");
+  const hinweis = document.createElement("p");
+  hinweis.className = "dezent";
+  hinweis.textContent = s.length
+    ? `„Schwächen“ übt gezielt: ${s.map(zeigeZ).join(" ")}. Neuere Fehler zählen stärker (Halbwertszeit ${HALBWERT_TAGE} Tage).`
+    : "";
+  box.appendChild(hinweis);
 }
 
 function zeichneAuswahl() {
@@ -384,6 +530,20 @@ document.querySelectorAll("#layoutwahl button").forEach((b) =>
 document.querySelectorAll("#moduswahl button").forEach((b) =>
   b.addEventListener("click", () => { opt.modus = b.dataset.modus; b.blur(); allesNeu(); }));
 
+$("auswertung-knopf").addEventListener("click", (e) => {
+  const offen = $("auswertung").hidden;
+  $("auswertung").hidden = !offen;
+  e.currentTarget.setAttribute("aria-expanded", offen);
+  if (offen) zeigeAuswertung();
+  e.currentTarget.blur();
+});
+$("schwaechen-ueben").addEventListener("click", (e) => {
+  opt.modus = "schwaechen";
+  $("auswertung").hidden = true;
+  $("auswertung-knopf").setAttribute("aria-expanded", false);
+  e.currentTarget.blur();
+  allesNeu();
+});
 $("einstellungen-knopf").addEventListener("click", (e) => {
   const offen = $("einstellungen").hidden;
   $("einstellungen").hidden = !offen;

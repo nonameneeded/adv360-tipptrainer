@@ -44,6 +44,15 @@ button[aria-checked="true"] { background: var(--akzent); color: #fff; }
 button.dezent { color: var(--leise); }
 .dezent { color: var(--leise); font-size: 14px; }
 
+#auswertung {
+  padding: 12px 16px 16px; background: var(--fl); border-bottom: 1px solid var(--linie); font-size: 14px;
+}
+#auswertung h2 { font-size: 16px; margin: 0 0 8px; }
+#auswertung table { border-collapse: collapse; margin: 8px 0; }
+#auswertung th, #auswertung td { text-align: left; padding: 4px 16px 4px 0; border-bottom: 1px solid var(--linie); }
+#auswertung td:nth-child(-n+2) { font: 18px ui-monospace, "DejaVu Sans Mono", monospace; }
+#meldung.warnung { color: var(--fehler); }
+
 #einstellungen {
   display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center;
   padding: 12px 16px; background: var(--fl); border-bottom: 1px solid var(--linie); font-size: 14px;

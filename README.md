@@ -19,6 +19,11 @@ Fortschritt wird nur lokal im Browser gespeichert (`localStorage`).
   Buchstaben das Ziel-Tempo erreichen und weniger als 7 % Fehler haben, kommt der nächste dazu.
   Die Übungswörter enthalten nur freigeschaltete Buchstaben; der schwächste Buchstabe
   (gelb umrandet) kommt öfter vor.
+- **Schwächen**: übt gezielt die Zeichen, die du am häufigsten verwechselst.
+- **Auswertung** (oben rechts): Tabelle, was du womit vertippst und warum vermutlich – alter
+  Griff aus dem anderen Layout, Nachbartaste oder Sonstiges. Neuere Fehler zählen stärker.
+- **Falscher Modus**: Tippst du mehrmals genau das, was die Taste im anderen Layout ergibt,
+  warnt der Trainer, dass die Tastatur im falschen Modus ist; diese Anschläge zählen nicht.
 - **Sätze**: kurze Sätze mit Groß-/Kleinschreibung und Satzzeichen.
 - **Symbole**: code-artige Schnipsel für die Symbol-Ebene (`( ) { } [ ] = & | …`).
 - **Test 1 min**: eine Minute häufige Wörter, Ergebnis in Anschlägen pro Minute.
