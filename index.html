@@ -33,6 +33,13 @@
     <label><input type="checkbox" id="opt-tastatur"> Tastatur anzeigen</label>
     <label>Ziel <input type="number" id="opt-ziel" min="60" max="600" step="10"> Anschläge/min</label>
     <button id="zuruecksetzen" class="dezent">Fortschritt dieses Layouts löschen</button>
+    <div class="zeile">
+      <span>Nächster Buchstabe ab</span>
+      <label><input type="number" id="opt-genau" min="80" max="100" step="1"> % Genauigkeit</label>
+      <label>und <input type="number" id="opt-huerde" min="0" max="100" step="5"> % des Ziel-Tempos,</label>
+      <label>spätestens nach <input type="number" id="opt-notausgang" min="0" max="120" step="5"> min Übung (0 = nie)</label>
+      <button id="freischalten" class="dezent">Jetzt freischalten</button>
+    </div>
   </section>
 
   <section id="auswertung" hidden>
@@ -52,6 +59,7 @@
     </section>
 
     <section id="buchstaben" aria-label="Freigeschaltete Buchstaben"></section>
+    <p id="naechster" class="dezent"></p>
 
     <section id="text" tabindex="0" aria-live="polite"></section>
     <p id="hinweis"></p>

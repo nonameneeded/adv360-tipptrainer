@@ -3,7 +3,8 @@
  * Adv360 Tipptrainer – adaptives Training für die eigene QWERTZ- und Bone-Belegung.
  *
  * Lernen: Man beginnt mit wenigen häufigen Buchstaben. Sind alle freigeschalteten Buchstaben
- * schnell und sicher genug (Ziel-Tempo, < 7 % Fehler), kommt der nächste dazu. Übungswörter
+ * genau genug (Standard 95 %) und nicht zu langsam (60 % des Ziel-Tempos), kommt der nächste
+ * dazu – spätestens nach 15 Minuten Übung, wenn wenigstens die Genauigkeit stimmt. Übungswörter
  * stammen aus einer Wortliste, gefiltert auf die freigeschalteten Buchstaben, mit Vorrang für
  * den schwächsten Buchstaben (Fokus).
  */
@@ -13,8 +14,7 @@ const WOERTER = [...new Set(window.WOERTER)];
 const REIHENFOLGE = "enisratdhulcgmobwfkzpvüäößjyxq";   // grob nach Häufigkeit im Deutschen
 const START = 6;
 const ZEILE = 52;             // Zeichen pro Übungszeile
-const MIN_PROBEN = 15;        // so oft muss ein Buchstabe getippt sein, bevor er als sicher gilt
-const MAX_FEHLER = 0.07;
+const MIN_PROBEN = 30;        // so oft muss ein Buchstabe getippt sein, bevor er als sicher gilt
 const PAUSE_MS = 3000;        // längere Pausen zählen nicht ins Tempo
 
 const FINGER = {
@@ -36,6 +36,7 @@ function sichern(schluessel, wert) {
 const opt = laden(SPEICHER, {
   layout: "qwertz", modus: "lernen", gross: false, satzzeichen: false, tastatur: true, ziel: 150,
   ansicht: "finger",
+  genau: 95, tempoHuerde: 60, notausgang: 15,   // Freischalten des nächsten Buchstabens
 });
 let fort;                       // Fortschritt des aktiven Layouts
 function fortLaden() {
@@ -76,9 +77,23 @@ function fehlgriff(z) {
   const s = stat(z);
   s.fehler = s.fehler * 0.9 + 0.1;
 }
-function sicher(z) {
+const maxFehler = () => 1 - opt.genau / 100;
+// genug geübt und genau genug – Voraussetzung für jede Freischaltung
+function bereit(z) {
   const s = fort.tasten[z];
-  return s && s.n >= MIN_PROBEN && s.ms != null && s.ms <= zielMs() && s.fehler <= MAX_FEHLER;
+  return !!s && s.ms != null && s.n >= MIN_PROBEN && s.fehler <= maxFehler();
+}
+// dazu schnell genug (Anteil des Ziel-Tempos)
+function sicher(z) {
+  return bereit(z) && fort.tasten[z].ms * opt.tempoHuerde / 100 <= zielMs();
+}
+// Warum ist z noch nicht sicher? (für die Anzeige)
+function grund(z) {
+  const s = fort.tasten[z];
+  if (!s || s.ms == null) return "neu";
+  if (s.n < MIN_PROBEN) return "zu wenig geübt";
+  if (s.fehler > maxFehler()) return "Genauigkeit";
+  return "Tempo";
 }
 // 0 = neu/langsam … 1 = Ziel erreicht
 function stand(z) {
@@ -305,13 +320,22 @@ function zeileFertig(jetzt) {
   if (!$("auswertung").hidden) zeigeAuswertung();
 }
 
+const restMinuten = () => Math.max(0, Math.ceil(opt.notausgang - (fort.seitFrei || 0) / 60));
 function pruefeFreischaltung() {
   if (opt.modus !== "lernen" || fort.frei >= REIHENFOLGE.length) return;
-  if (freieBuchstaben().every(sicher)) {
-    const neu = REIHENFOLGE[fort.frei];
-    fort.frei++;
-    melde(`Neuer Buchstabe: ${neu}`);
+  const frei = freieBuchstaben();
+  if (frei.every(sicher)) {
+    melde(`Neuer Buchstabe: ${freischalten()}`);
+  } else if (opt.notausgang > 0 && restMinuten() === 0 && frei.every(bereit)) {
+    // Notausgang: lange geübt und genau, nur das Tempo fehlt noch
+    const langsam = frei.filter((z) => !sicher(z)).join(" ");
+    melde(`Neuer Buchstabe: ${freischalten()} – nach ${opt.notausgang} min Übung (noch zu langsam: ${langsam}).`);
   }
+}
+function freischalten() {
+  fort.frei++;
+  fort.seitFrei = 0;
+  return REIHENFOLGE[fort.frei - 1];
 }
 
 function warneModus() {
@@ -324,6 +348,7 @@ function warneModus() {
 function zeitZaehlen(ms) {
   const tag = heute();
   fort.tage[tag] = (fort.tage[tag] || 0) + ms / 1000;
+  if (opt.modus === "lernen") fort.seitFrei = (fort.seitFrei || 0) + ms / 1000;
   zeigeHeute();
 }
 
@@ -494,15 +519,33 @@ function zeichneBuchstaben() {
       s.classList.add("offen");
       const p = stand(z);
       s.style.background = `hsl(${Math.round(p * 120)} 65% 42%)`;
-      s.title = fort.tasten[z]?.ms
-        ? `${Math.round(60000 / fort.tasten[z].ms)} Anschläge/min, ${Math.round(fort.tasten[z].fehler * 100)} % Fehler`
+      const t = fort.tasten[z];
+      s.title = t?.ms
+        ? `${Math.round(60000 / t.ms)} Anschläge/min, ${Math.round(t.fehler * 100)} % Fehler`
         : "noch nicht geübt";
       if (z === f) s.classList.add("fokus");
     } else {
-      s.title = "noch gesperrt";
+      s.title = i === fort.frei ? "kommt als Nächstes" : "noch gesperrt";
     }
     el.appendChild(s);
   });
+  zeichneNaechster();
+}
+// Was fehlt bis zum nächsten Buchstaben?
+function zeichneNaechster() {
+  const el = $("naechster");
+  el.textContent = "";
+  if (opt.modus !== "lernen" || fort.frei >= REIHENFOLGE.length) return;
+  const fehlt = freieBuchstaben().filter((z) => !sicher(z));
+  if (!fehlt.length) return;
+  const teile = fehlt.slice(0, 6).map((z) => `${z} (${grund(z)})`);
+  if (fehlt.length > 6) teile.push(`und ${fehlt.length - 6} weitere`);
+  let text = `Bis „${REIHENFOLGE[fort.frei]}“ fehlt noch: ${teile.join(", ")}`;
+  if (opt.notausgang > 0 && fehlt.every((z) => grund(z) === "Tempo")) {
+    const rest = restMinuten();
+    text += rest ? ` – spätestens in ${rest} min Übung` : " – kommt nach dieser Zeile";
+  }
+  el.textContent = text + ".";
 }
 
 function zeigeWerte(tempo, genau) {
@@ -723,11 +766,27 @@ for (const [id, feld] of Object.entries(schalter)) {
   $(id).checked = opt[feld];
   $(id).addEventListener("change", (e) => { opt[feld] = e.target.checked; allesNeu(); });
 }
-$("opt-ziel").value = opt.ziel;
-$("opt-ziel").addEventListener("change", (e) => {
-  opt.ziel = Math.min(600, Math.max(60, Number(e.target.value) || 150));
-  e.target.value = opt.ziel;
+// Zahlenfelder: Feld, kleinster Wert, größter Wert
+const zahlen = {
+  "opt-ziel": ["ziel", 60, 600], "opt-genau": ["genau", 80, 100], "opt-huerde": ["tempoHuerde", 0, 100],
+  "opt-notausgang": ["notausgang", 0, 120],
+};
+for (const [id, [feld, min, max]] of Object.entries(zahlen)) {
+  $(id).value = opt[feld];
+  $(id).addEventListener("change", (e) => {
+    const v = Number(e.target.value);
+    if (e.target.value !== "" && Number.isFinite(v)) opt[feld] = Math.min(max, Math.max(min, Math.round(v)));
+    e.target.value = opt[feld];
+    allesNeu();
+  });
+}
+$("freischalten").addEventListener("click", (e) => {
+  e.currentTarget.blur();
+  if (fort.frei >= REIHENFOLGE.length) return;
+  const neu = freischalten();
+  sichern(`${SPEICHER}.${opt.layout}`, fort);
   allesNeu();
+  melde(`Neuer Buchstabe: ${neu} (von Hand freigeschaltet)`);
 });
 $("zuruecksetzen").addEventListener("click", () => {
   if (!confirm(`Fortschritt für ${opt.layout === "bone" ? "Bone" : "QWERTZ"} löschen?`)) return;

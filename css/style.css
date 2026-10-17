@@ -87,6 +87,7 @@ button.dezent { color: var(--leise); }
 }
 #einstellungen[hidden] { display: none; }
 #einstellungen input[type=number] { width: 70px; font: inherit; }
+#einstellungen .zeile { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 
 .werte { display: flex; gap: 32px; justify-content: center; margin: 8px 0 16px; }
 .werte div { text-align: center; }
@@ -100,6 +101,7 @@ button.dezent { color: var(--leise); }
 }
 #buchstaben span.offen { color: #fff; border-color: transparent; }
 #buchstaben span.fokus { outline: 3px solid var(--ziel); outline-offset: 1px; }
+#naechster { text-align: center; margin: -12px 0 16px; min-height: 1.5em; }
 
 #text {
   font: 28px/1.6 ui-monospace, "DejaVu Sans Mono", Consolas, monospace;

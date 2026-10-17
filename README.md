@@ -19,10 +19,12 @@ Server und keinen Build-Schritt; der Fortschritt wird nur lokal im Browser gespe
 
 - **Layout**: Bone oder QWERTZ. Die Tastatur muss im selben Modus sein (Standard ist Bone, QWERTZ: Mod + B),
   das Betriebssystem bleibt auf Deutsch (QWERTZ).
-- **Lernen**: Start mit sechs häufigen Buchstaben (e n i s r a). Sobald alle freigeschalteten
-  Buchstaben das Ziel-Tempo erreichen und weniger als 7 % Fehler haben, kommt der nächste dazu.
-  Die Übungswörter enthalten nur freigeschaltete Buchstaben; der schwächste Buchstabe
-  (gelb umrandet) kommt öfter vor.
+- **Lernen**: Start mit sechs häufigen Buchstaben (e n i s r a). Der nächste kommt dazu, sobald
+  jeder freigeschaltete Buchstabe mindestens 30-mal getippt ist, **95 % Genauigkeit** hat und
+  **60 % des Ziel-Tempos** erreicht. Hängt es nur noch am Tempo, kommt er spätestens nach
+  **15 Minuten Übung** trotzdem. Unter den Buchstaben steht, was noch fehlt. Die Übungswörter
+  enthalten nur freigeschaltete Buchstaben; der schwächste Buchstabe (gelb umrandet) kommt
+  öfter vor.
 - **Schwächen**: übt gezielt die Zeichen, die du am häufigsten verwechselst.
 - **Auswertung** (oben rechts):
   - **Verlauf** der letzten 30 Tage: Übungszeit pro Tag, Ø Anschläge/min in den Wort-Übungen,
@@ -41,7 +43,8 @@ Server und keinen Build-Schritt; der Fortschritt wird nur lokal im Browser gespe
   indem man das richtige Zeichen tippt (keine Rücktaste nötig).
 
 In den Einstellungen lassen sich Groß-/Kleinschreibung und Satzzeichen fürs Lernen, die
-Bildschirmtastatur und das Ziel-Tempo (Standard 150 Anschläge/min) einstellen.
+Bildschirmtastatur, das Ziel-Tempo (Standard 150 Anschläge/min) und die drei Werte fürs
+Freischalten einstellen; dort lässt sich der nächste Buchstabe auch von Hand freischalten.
 
 ## Belegung aktualisieren
 
