@@ -35,12 +35,31 @@ function sichern(schluessel, wert) {
 
 const opt = laden(SPEICHER, {
   layout: "qwertz", modus: "lernen", gross: false, satzzeichen: false, tastatur: true, ziel: 150,
+  ansicht: "finger",
 });
 let fort;                       // Fortschritt des aktiven Layouts
 function fortLaden() {
-  fort = laden(`${SPEICHER}.${opt.layout}`, { frei: START, tasten: {}, tage: {}, verlauf: [], fehler: [] });
+  fort = laden(`${SPEICHER}.${opt.layout}`,
+    { frei: START, tasten: {}, tage: {}, verlauf: [], fehler: [], tagWerte: null });
+  if (!fort.tagWerte) {             // ältere Spielstände: Tageswerte aus den letzten Zeilen nachtragen
+    fort.tagWerte = {};
+    fort.verlauf.forEach(tagEintragen);
+  }
 }
-const heute = () => new Date().toISOString().slice(0, 10);
+const zwei = (n) => String(n).padStart(2, "0");
+// Kalendertag in Ortszeit (toISOString wäre UTC und würde nach Mitternacht den Vortag liefern)
+function tagVon(t) {
+  const d = new Date(t);
+  return `${d.getFullYear()}-${zwei(d.getMonth() + 1)}-${zwei(d.getDate())}`;
+}
+const heute = () => tagVon(Date.now());
+// Tageswerte für den Verlauf: Tempo und Genauigkeit aus Wort-Übungen (ohne Symbole),
+// dazu das beste Test-Ergebnis des Tages
+function tagEintragen(v) {
+  const w = fort.tagWerte[tagVon(v.t)] ||= { zeilen: 0, tempo: 0, genau: 0, test: 0 };
+  if (v.modus === "test") w.test = Math.max(w.test, v.tempo);
+  else if (v.modus !== "symbole") { w.zeilen++; w.tempo += v.tempo; w.genau += v.genau; }
+}
 const zielMs = () => 60000 / opt.ziel;
 
 // ---------------------------------------------------------------- Statistik je Zeichen
@@ -271,13 +290,18 @@ function zeileFertig(jetzt) {
   const genau = Math.round(100 * zeileAnschlaege / (zeileAnschlaege + zeileFehler));
   summeAnschlaege += zeileAnschlaege;
   summeFehler += zeileFehler;
-  if (opt.modus !== "test") fort.verlauf.push({ t: Date.now(), tempo, genau, modus: opt.modus });
+  if (opt.modus !== "test") {
+    const v = { t: Date.now(), tempo, genau, modus: opt.modus };
+    fort.verlauf.push(v);
+    tagEintragen(v);
+  }
   fort.verlauf = fort.verlauf.slice(-200);
   pruefeFreischaltung();
   sichern(`${SPEICHER}.${opt.layout}`, fort);
   if (opt.modus !== "test") zeigeWerte(tempo, genau);
   starteZeile();
   zeichneBuchstaben();
+  faerbeTastatur();
   if (!$("auswertung").hidden) zeigeAuswertung();
 }
 
@@ -318,7 +342,9 @@ function starteTest() {
       const a = gesamtAnschlaege() - anschlaege0;
       const f = gesamtFehler() - fehler0;
       zeigeWerte(a, Math.round(100 * a / Math.max(1, a + f)));
-      fort.verlauf.push({ t: Date.now(), tempo: a, genau: Math.round(100 * a / Math.max(1, a + f)), modus: "test" });
+      const v = { t: Date.now(), tempo: a, genau: Math.round(100 * a / Math.max(1, a + f)), modus: "test" };
+      fort.verlauf.push(v);
+      tagEintragen(v);
       sichern(`${SPEICHER}.${opt.layout}`, fort);
       melde(`Test beendet: ${a} Anschläge in einer Minute. Esc startet neu.`);
     }
@@ -339,6 +365,13 @@ function neustart() {
 
 // ---------------------------------------------------------------- Anzeige
 const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(name, attr = {}, text) {
+  const el = document.createElementNS(NS, name);
+  for (const [a, v] of Object.entries(attr)) el.setAttribute(a, v);
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
 
 function zeichneText() {
   const el = $("text");
@@ -376,29 +409,19 @@ function zeichneHinweis() {
 function zeichneTastatur() {
   const box = $("tastatur");
   box.hidden = !opt.tastatur;
+  $("ansichtwahl").hidden = !opt.tastatur;
+  $("heat-legende").hidden = true;
   if (!opt.tastatur) return;
   const lab = D.layouts[opt.layout].labels;
-  const ns = "http://www.w3.org/2000/svg";
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  const svg = document.createElementNS(ns, "svg");
+  const svg = svgEl("svg");
   D.keys.forEach((k, i) => {
-    const g = document.createElementNS(ns, "g");
-    g.dataset.i = i;
-    g.setAttribute("class", "f-" + k.finger[1]);
+    const g = svgEl("g", { "data-i": i, class: "f-" + k.finger[1] });
     if (k.r) g.setAttribute("transform", `rotate(${k.r / 100} ${k.rx} ${k.ry})`);
-    const r = document.createElementNS(ns, "rect");
-    Object.entries({ x: k.x + 4, y: k.y + 4, width: k.w - 8, height: k.h - 8, rx: 12 })
-      .forEach(([a, v]) => r.setAttribute(a, v));
-    g.appendChild(r);
+    g.appendChild(svgEl("rect", { x: k.x + 4, y: k.y + 4, width: k.w - 8, height: k.h - 8, rx: 12 }));
     const l = lab[i];
-    const text = (cls, s, dx, dy) => {
-      const t = document.createElementNS(ns, "text");
-      t.setAttribute("class", cls);
-      t.setAttribute("x", k.x + k.w / 2 + dx);
-      t.setAttribute("y", k.y + k.h / 2 + dy);
-      t.textContent = s;
-      g.appendChild(t);
-    };
+    const text = (cls, s, dx, dy) =>
+      g.appendChild(svgEl("text", { class: cls, x: k.x + k.w / 2 + dx, y: k.y + k.h / 2 + dy }, s));
     if (l.base !== undefined) {
       const gross = l.base.toUpperCase();      // wie auf Tastenkappen, aber ß bleibt ß
       text("haupt", gross.length === 1 ? gross : l.base, 0, 0);
@@ -420,7 +443,43 @@ function zeichneTastatur() {
   svg.setAttribute("viewBox", `${minX - 10} ${minY - 10} ${maxX - minX + 20} ${maxY - minY + 20}`);
   box.textContent = "";
   box.appendChild(svg);
+  faerbeTastatur();
   zeichneHinweis();
+}
+
+// Heatmap: je Taste der Stand aller Zeichen, die auf ihr liegen (Basis, Shift, Symbol-Ebene),
+// gewichtet nach Anzahl der Anschläge
+function tastenWerte() {
+  const je = new Map();
+  for (const [z, s] of Object.entries(fort.tasten)) {
+    const w = weg(z);
+    if (!w || !s.n || s.ms == null) continue;
+    const e = je.get(w.key) || { summe: 0, n: 0, zeichen: [] };
+    e.summe += stand(z) * s.n;
+    e.n += s.n;
+    e.zeichen.push(z);
+    je.set(w.key, e);
+  }
+  return je;
+}
+function faerbeTastatur() {
+  const svg = $("tastatur").querySelector("svg");
+  if (!svg) return;
+  const heat = opt.ansicht === "heatmap";
+  svg.classList.toggle("heat", heat);
+  $("heat-legende").hidden = !heat;
+  const werte = heat ? tastenWerte() : new Map();
+  svg.querySelectorAll("g[data-i]").forEach((g) => {
+    const e = werte.get(Number(g.dataset.i));
+    g.classList.toggle("daten", !!e);
+    g.querySelector("title")?.remove();
+    if (!e) return;
+    g.style.setProperty("--h", Math.round(e.summe / e.n * 120));
+    g.prepend(svgEl("title", {}, e.zeichen.map((z) => {
+      const s = fort.tasten[z];
+      return `${z}: ${Math.round(60000 / s.ms)} Anschläge/min, ${Math.round(s.fehler * 100)} % Fehler, ${s.n}× getippt`;
+    }).join("\n")));
+  });
 }
 
 function zeichneBuchstaben() {
@@ -460,7 +519,107 @@ function melde(t) {
 }
 
 // ---------------------------------------------------------------- Auswertung
+const TAGE_IM_VERLAUF = 30;
+function datumKurz(tag) { return `${Number(tag.slice(8))}.${Number(tag.slice(5, 7))}.`; }
+function tagWert(tag) {
+  const w = fort.tagWerte[tag];
+  return {
+    tag,
+    minuten: (fort.tage[tag] || 0) / 60,
+    tempo: w && w.zeilen ? w.tempo / w.zeilen : null,
+    genau: w && w.zeilen ? w.genau / w.zeilen : null,
+    test: w && w.test ? w.test : null,
+    zeilen: w ? w.zeilen : 0,
+  };
+}
+// Schnitt über mehrere Tage, gewichtet nach Zeilen
+function schnitt(tage) {
+  const z = tage.reduce((a, t) => a + t.zeilen, 0);
+  return {
+    minuten: tage.reduce((a, t) => a + t.minuten, 0),
+    tempo: z ? tage.reduce((a, t) => a + (t.tempo || 0) * t.zeilen, 0) / z : null,
+  };
+}
+function zeichneVerlauf() {
+  const box = $("verlauf");
+  box.textContent = "";
+  const tage = [];
+  for (let i = TAGE_IM_VERLAUF - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    tage.push(tagWert(tagVon(d)));
+  }
+  if (!tage.some((t) => t.minuten >= 0.5 || t.tempo || t.test)) {
+    box.textContent = "Noch kein Verlauf – nach ein paar Übungstagen siehst du hier Übungszeit und Tempo pro Tag.";
+    return;
+  }
+  // Vergleich: letzte 7 Tage gegen die 7 Tage davor
+  const jetzt = schnitt(tage.slice(-7)), vorher = schnitt(tage.slice(-14, -7));
+  const p = document.createElement("p");
+  p.textContent = `Letzte 7 Tage: ${Math.round(jetzt.minuten)} min geübt` +
+    (jetzt.tempo ? `, Ø ${Math.round(jetzt.tempo)} Anschläge/min` : "") +
+    (jetzt.tempo && vorher.tempo ? ` (Woche davor: ${Math.round(vorher.tempo)})` : "") + ".";
+  box.appendChild(p);
+
+  const B = 720, H = 200, L = 52, R = 44, O = 10, U = 24;
+  const breite = (B - L - R) / tage.length;
+  const maxMin = Math.max(10, Math.ceil(Math.max(...tage.map((t) => t.minuten)) / 10) * 10);
+  const maxTempo = Math.ceil(Math.max(opt.ziel, ...tage.map((t) => Math.max(t.tempo || 0, t.test || 0))) * 1.1 / 50) * 50;
+  const x = (i) => L + breite * (i + 0.5);
+  const yMin = (m) => H - U - (H - U - O) * m / maxMin;
+  const yTempo = (v) => H - U - (H - U - O) * v / maxTempo;
+  const svg = svgEl("svg", { viewBox: `0 0 ${B} ${H}`, class: "verlauf", role: "img",
+    "aria-label": "Übungszeit und Tempo der letzten 30 Tage" });
+  // Achsen und Hilfslinien
+  for (const anteil of [0, 0.5, 1]) {
+    const y = H - U - (H - U - O) * anteil;
+    svg.appendChild(svgEl("line", { x1: L, x2: B - R, y1: y, y2: y, class: "gitter" }));
+    svg.appendChild(svgEl("text", { x: L - 6, y, class: "achse links" }, Math.round(maxMin * anteil) + (anteil === 1 ? " min" : "")));
+    svg.appendChild(svgEl("text", { x: B - R + 6, y, class: "achse rechts" }, Math.round(maxTempo * anteil)));
+  }
+  svg.appendChild(svgEl("line", { x1: L, x2: B - R, y1: yTempo(opt.ziel), y2: yTempo(opt.ziel), class: "ziellinie" }));
+  // Übungszeit als Balken
+  tage.forEach((t, i) => {
+    if (t.minuten > 0) {
+      const y = yMin(t.minuten);
+      svg.appendChild(svgEl("rect", { x: x(i) - breite * 0.35, y, width: breite * 0.7, height: H - U - y, class: "balken" }));
+    }
+    if (i % 5 === (tage.length - 1) % 5) {
+      svg.appendChild(svgEl("text", { x: x(i), y: H - 8, class: "achse mitte" }, datumKurz(t.tag)));
+    }
+  });
+  // Tempo als Linie, Tests als Rauten
+  const punkte = tage.map((t, i) => [t, i]).filter(([t]) => t.tempo);
+  if (punkte.length > 1) {
+    svg.appendChild(svgEl("polyline", { class: "tempo",
+      points: punkte.map(([t, i]) => `${x(i)},${yTempo(t.tempo)}`).join(" ") }));
+  }
+  for (const [t, i] of punkte) svg.appendChild(svgEl("circle", { cx: x(i), cy: yTempo(t.tempo), r: 4, class: "tempo" }));
+  tage.forEach((t, i) => {
+    if (!t.test) return;
+    const y = yTempo(t.test);
+    svg.appendChild(svgEl("path", { d: `M${x(i)} ${y - 6}l6 6-6 6-6-6z`, class: "test" }));
+  });
+  // Unsichtbare Spalten mit Tooltip je Tag
+  tage.forEach((t, i) => {
+    const teile = [`${datumKurz(t.tag)}: ${Math.round(t.minuten)} min geübt`];
+    if (t.tempo) teile.push(`Ø ${Math.round(t.tempo)} Anschläge/min, ${Math.round(t.genau)} % genau`);
+    if (t.test) teile.push(`bester Test ${t.test}`);
+    const spalte = svgEl("rect", { x: L + breite * i, y: O, width: breite, height: H - U - O, class: "spalte" });
+    spalte.appendChild(svgEl("title", {}, teile.join("\n")));
+    svg.appendChild(spalte);
+  });
+  box.appendChild(svg);
+  const legende = document.createElement("p");
+  legende.className = "dezent legende";
+  legende.innerHTML = '<span class="farbe balken"></span> Übungszeit (links) · ' +
+    '<span class="farbe tempo"></span> Ø Anschläge/min in Wort-Übungen (rechts) · ' +
+    '<span class="farbe test"></span> bester Test · <span class="farbe ziel"></span> Ziel';
+  box.appendChild(legende);
+}
+
 function zeigeAuswertung() {
+  zeichneVerlauf();
   const liste = verwechslungen().slice(0, 12);
   const box = $("auswertung-inhalt");
   box.textContent = "";
@@ -506,6 +665,8 @@ function zeichneAuswahl() {
     b.setAttribute("aria-checked", b.dataset.layout === opt.layout));
   document.querySelectorAll("#moduswahl button").forEach((b) =>
     b.setAttribute("aria-checked", b.dataset.modus === opt.modus));
+  document.querySelectorAll("#ansichtwahl button").forEach((b) =>
+    b.setAttribute("aria-checked", b.dataset.ansicht === opt.ansicht));
   $("layout-hinweis").textContent = opt.layout === "bone"
     ? "Bone auf der Tastatur einschalten: Mod halten + B (LEDs weiß). Das Betriebssystem bleibt auf Deutsch (QWERTZ)."
     : "Tastatur im QWERTZ-Modus (LEDs aus), Betriebssystem auf Deutsch (QWERTZ).";
@@ -529,6 +690,14 @@ document.querySelectorAll("#layoutwahl button").forEach((b) =>
   b.addEventListener("click", () => { opt.layout = b.dataset.layout; b.blur(); allesNeu(); }));
 document.querySelectorAll("#moduswahl button").forEach((b) =>
   b.addEventListener("click", () => { opt.modus = b.dataset.modus; b.blur(); allesNeu(); }));
+document.querySelectorAll("#ansichtwahl button").forEach((b) =>
+  b.addEventListener("click", () => {
+    opt.ansicht = b.dataset.ansicht;
+    b.blur();
+    sichern(SPEICHER, opt);
+    zeichneAuswahl();
+    faerbeTastatur();
+  }));
 
 $("auswertung-knopf").addEventListener("click", (e) => {
   const offen = $("auswertung").hidden;

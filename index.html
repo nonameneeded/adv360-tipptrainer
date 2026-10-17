@@ -36,6 +36,8 @@
   </section>
 
   <section id="auswertung" hidden>
+    <h2>Verlauf</h2>
+    <div id="verlauf"></div>
     <h2>Verwechslungen</h2>
     <div id="auswertung-inhalt"></div>
     <button id="schwaechen-ueben">Schwächen gezielt üben</button>
@@ -55,7 +57,15 @@
     <p id="hinweis"></p>
     <p id="meldung" role="status"></p>
 
+    <div class="gruppe" id="ansichtwahl" role="radiogroup" aria-label="Tastatur-Ansicht">
+      <button data-ansicht="finger">Finger</button>
+      <button data-ansicht="heatmap">Heatmap</button>
+    </div>
     <section id="tastatur" aria-hidden="true"></section>
+    <p id="heat-legende" class="dezent" hidden>
+      Heatmap: <span class="farbe rot"></span> langsam oder viele Fehler · <span class="farbe gruen"></span> Ziel-Tempo
+      sicher erreicht · ohne Farbe = noch nicht geübt. Maus auf eine Taste zeigt die Werte je Zeichen.
+    </p>
     <p id="layout-hinweis" class="dezent"></p>
   </main>
 

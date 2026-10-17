@@ -11,12 +11,15 @@
   --mod: #8b5cf6;
   /* Fingerfarben (hell) */
   --f-k: #fde2e2; --f-r: #fdeccc; --f-m: #e2f5dc; --f-i: #dbeafe; --f-t: #ede9fe;
+  /* Heatmap: Farbton kommt je Taste (0 rot … 120 grün), hier Sättigung und Helligkeit */
+  --heat-s: 70%; --heat-l: 78%;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #15171a; --fl: #1f2227; --text: #e6e8eb; --leise: #9aa1ab; --linie: #3a3f46;
     --akzent: #60a5fa; --gut: #4ade80; --fehler: #f87171; --ziel: #fbbf24; --mod: #a78bfa;
     --f-k: #4a2a2a; --f-r: #4a3a22; --f-m: #263f24; --f-i: #233650; --f-t: #352d50;
+    --heat-s: 45%; --heat-l: 32%;
   }
 }
 
@@ -58,6 +61,26 @@ button.dezent { color: var(--leise); }
 #auswertung td:nth-child(-n+2) { font: 18px ui-monospace, "DejaVu Sans Mono", monospace; }
 #meldung.warnung { color: var(--fehler); }
 
+#verlauf svg { width: 100%; max-width: 760px; height: auto; display: block; margin: 4px 0; }
+.verlauf .gitter { stroke: var(--linie); stroke-width: 1; }
+.verlauf .achse { fill: var(--leise); font-size: 11px; dominant-baseline: central; }
+.verlauf .achse.links { text-anchor: end; }
+.verlauf .achse.mitte { text-anchor: middle; }
+.verlauf .balken { fill: var(--akzent); opacity: 0.25; }
+.verlauf polyline.tempo { fill: none; stroke: var(--akzent); stroke-width: 2.5; }
+.verlauf circle.tempo { fill: var(--akzent); }
+.verlauf .test { fill: var(--mod); }
+.verlauf .ziellinie { stroke: var(--ziel); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.verlauf .spalte { fill: transparent; }
+.verlauf .spalte:hover { fill: var(--text); opacity: 0.06; }
+.farbe { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
+.farbe.balken { background: var(--akzent); opacity: 0.25; }
+.farbe.tempo { background: var(--akzent); }
+.farbe.test { background: var(--mod); transform: rotate(45deg) scale(0.8); }
+.farbe.ziel { background: var(--ziel); height: 3px; vertical-align: 3px; }
+.farbe.rot { background: hsl(0 var(--heat-s) var(--heat-l)); border: 1px solid var(--linie); }
+.farbe.gruen { background: hsl(120 var(--heat-s) var(--heat-l)); border: 1px solid var(--linie); }
+
 #einstellungen {
   display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center;
   padding: 12px 16px; background: var(--fl); border-bottom: 1px solid var(--linie); font-size: 14px;
@@ -96,6 +119,8 @@ button.dezent { color: var(--leise); }
 #tastatur .f-k rect { fill: var(--f-k); } #tastatur .f-r rect { fill: var(--f-r); }
 #tastatur .f-m rect { fill: var(--f-m); } #tastatur .f-i rect { fill: var(--f-i); }
 #tastatur .f-t rect { fill: var(--f-t); }
+#tastatur .heat g:not(.ziel):not(.mod) rect { fill: var(--fl); }
+#tastatur .heat g.daten:not(.ziel):not(.mod) rect { fill: hsl(var(--h) var(--heat-s) var(--heat-l)); }
 #tastatur .ziel rect { fill: var(--ziel); stroke: var(--text); stroke-width: 6; }
 #tastatur .mod rect { fill: var(--mod); stroke: var(--text); stroke-width: 6; }
 #tastatur text { fill: var(--text); text-anchor: middle; dominant-baseline: central; font-family: system-ui, sans-serif; }
@@ -105,6 +130,9 @@ button.dezent { color: var(--leise); }
 #tastatur .sym { font-size: 20px; fill: var(--akzent); font-weight: 600; }
 #tastatur .ziel text, #tastatur .mod text { fill: #000; }
 #layout-hinweis { text-align: center; margin-top: 8px; }
+#ansichtwahl { display: flex; width: fit-content; margin: 4px auto 0; }
+#ansichtwahl button { font-size: 13px; padding: 3px 10px; }
+#heat-legende { text-align: center; margin: 8px 0 0; }
 
 @media (max-width: 640px) {
   #text { font-size: 20px; padding: 14px; }

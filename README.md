@@ -24,8 +24,14 @@ Server und keinen Build-Schritt; der Fortschritt wird nur lokal im Browser gespe
   Die Übungswörter enthalten nur freigeschaltete Buchstaben; der schwächste Buchstabe
   (gelb umrandet) kommt öfter vor.
 - **Schwächen**: übt gezielt die Zeichen, die du am häufigsten verwechselst.
-- **Auswertung** (oben rechts): Tabelle, was du womit vertippst und warum vermutlich – alter
-  Griff aus dem anderen Layout, Nachbartaste oder Sonstiges. Neuere Fehler zählen stärker.
+- **Auswertung** (oben rechts):
+  - **Verlauf** der letzten 30 Tage: Übungszeit pro Tag, Ø Anschläge/min in den Wort-Übungen,
+    bestes Test-Ergebnis und das Ziel-Tempo; dazu der Vergleich letzte Woche gegen die davor.
+  - **Verwechslungen**: Tabelle, was du womit vertippst und warum vermutlich – alter Griff aus
+    dem anderen Layout, Nachbartaste oder Sonstiges. Neuere Fehler zählen stärker.
+- **Heatmap** (Umschalter über der Tastatur): färbt jede Taste von Rot (langsam oder viele
+  Fehler) bis Grün (Ziel-Tempo sicher erreicht). Gezählt werden alle Zeichen auf der Taste,
+  auch Shift und Symbol-Ebene; die Maus auf einer Taste zeigt die Werte je Zeichen.
 - **Falscher Modus**: Tippst du mehrmals genau das, was die Taste im anderen Layout ergibt,
   warnt der Trainer, dass die Tastatur im falschen Modus ist; diese Anschläge zählen nicht.
 - **Sätze**: kurze Sätze mit Groß-/Kleinschreibung und Satzzeichen.
