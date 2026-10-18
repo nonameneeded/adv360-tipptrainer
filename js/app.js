@@ -249,6 +249,7 @@ let text = "", stelle = 0, falsch = false, fehlerStellen = new Set();
 let letzterAnschlag = null, zeileStart = null, zeileAnschlaege = 0, zeileFehler = 0;
 let testEnde = null, testTimer = null, summeAnschlaege = 0, summeFehler = 0;
 let letzte = [];               // Ergebnis der letzten Anschläge, für die Modus-Warnung
+let leerFrei = false;          // nach dem Zeilenende ist eine Leertaste gratis (Gewohnheit)
 const merke = (a) => { letzte = letzte.concat(a).slice(-6); };
 
 function starteZeile() {
@@ -265,6 +266,10 @@ function taste(e) {
   if (e.target.closest && e.target.closest("input, button")) return;
   e.preventDefault();                             // Leertaste scrollt nicht, / öffnet keine Suche
   if (testEnde && Date.now() > testEnde) return;
+  if (leerFrei) {
+    leerFrei = false;
+    if (e.key === " " && stelle === 0) return;
+  }
 
   const jetzt = performance.now();
   const soll = text[stelle];
@@ -315,6 +320,7 @@ function zeileFertig(jetzt) {
   sichern(`${SPEICHER}.${opt.layout}`, fort);
   if (opt.modus !== "test") zeigeWerte(tempo, genau);
   starteZeile();
+  leerFrei = true;
   zeichneBuchstaben();
   faerbeTastatur();
   if (!$("auswertung").hidden) zeigeAuswertung();
@@ -385,6 +391,7 @@ function neustart() {
   document.getElementById("wert-timer-box").hidden = true;
   document.getElementById("wert-timer").textContent = "60";
   melde("");
+  leerFrei = false;
   starteZeile();
 }
 

@@ -40,7 +40,8 @@ Server und keinen Build-Schritt; der Fortschritt wird nur lokal im Browser gespe
 - **Symbole**: code-artige Schnipsel für die Symbol-Ebene (`( ) { } [ ] = & | …`).
 - **Test 1 min**: eine Minute häufige Wörter, Ergebnis in Anschlägen pro Minute.
 - **Esc** startet die aktuelle Zeile neu. Ein falscher Anschlag muss korrigiert werden,
-  indem man das richtige Zeichen tippt (keine Rücktaste nötig).
+  indem man das richtige Zeichen tippt (keine Rücktaste nötig). Eine Leertaste direkt nach dem
+  Ende einer Zeile wird ignoriert.
 
 In den Einstellungen lassen sich Groß-/Kleinschreibung und Satzzeichen fürs Lernen, die
 Bildschirmtastatur, das Ziel-Tempo (Standard 150 Anschläge/min) und die drei Werte fürs
