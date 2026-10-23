@@ -203,6 +203,31 @@ function zeileAus(liste) {
   }
   return teile.join(" ");
 }
+// Sätze nur aus freigeschalteten Buchstaben: echte Sätze, die passen, sonst gebaute aus passenden Wörtern
+function zeileSaetze() {
+  const erlaubt = new Set(freieBuchstaben());
+  const echte = window.SAETZE.filter((t) => wortPasst(t.replace(/[^\p{L}]/gu, ""), erlaubt));
+  if (echte.length === window.SAETZE.length) return zeileAus(echte);
+  const passend = WOERTER.filter((w) => wortPasst(w, erlaubt));
+  const teile = [];
+  let laenge = 0;
+  while (laenge < ZEILE) {
+    let t;
+    if (echte.length && Math.random() < Math.min(0.8, echte.length / 20)) {
+      t = zufall(echte);
+    } else {
+      const n = 3 + Math.floor(Math.random() * 4);
+      const w = Array.from({ length: n }, () =>
+        passend.length < 12 ? kunstwort(freieBuchstaben(), zufall(freieBuchstaben())) : zufall(passend));
+      w[0] = w[0][0].toUpperCase() + w[0].slice(1);
+      if (n > 4 && Math.random() < 0.5) w[1] += ",";
+      t = w.join(" ") + zufall([".", ".", ".", "?", "!"]);
+    }
+    teile.push(t);
+    laenge += t.length + 1;
+  }
+  return teile.join(" ");
+}
 function zeileTest() {
   const haeufig = WOERTER.slice(0, 400).filter((w) => w.length > 1);
   return zeileAus(haeufig);
@@ -238,7 +263,7 @@ function zeileSchwaechen() {
 }
 function neueZeile() {
   if (opt.modus === "schwaechen") return zeileSchwaechen();
-  if (opt.modus === "saetze") return zeileAus(window.SAETZE);
+  if (opt.modus === "saetze") return zeileSaetze();
   if (opt.modus === "symbole") return zeileAus(window.SYMBOLE);
   if (opt.modus === "test") return zeileTest();
   return zeileLernen();

@@ -36,7 +36,9 @@ Server und keinen Build-Schritt; der Fortschritt wird nur lokal im Browser gespe
   auch Shift und Symbol-Ebene; die Maus auf einer Taste zeigt die Werte je Zeichen.
 - **Falscher Modus**: Tippst du mehrmals genau das, was die Taste im anderen Layout ergibt,
   warnt der Trainer, dass die Tastatur im falschen Modus ist; diese Anschläge zählen nicht.
-- **Sätze**: kurze Sätze mit Groß-/Kleinschreibung und Satzzeichen.
+- **Sätze**: kurze Sätze mit Groß-/Kleinschreibung und Satzzeichen. Solange noch nicht alle
+  Buchstaben freigeschaltet sind, kommen nur Sätze aus freigeschalteten Buchstaben: echte Sätze,
+  soweit sie schon passen, dazu Sätze aus passenden Wörtern.
 - **Symbole**: code-artige Schnipsel für die Symbol-Ebene (`( ) { } [ ] = & | …`).
 - **Test 1 min**: eine Minute häufige Wörter, Ergebnis in Anschlägen pro Minute.
 - **Esc** startet die aktuelle Zeile neu. Ein falscher Anschlag muss korrigiert werden,
