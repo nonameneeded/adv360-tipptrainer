@@ -45,7 +45,9 @@ Server und keinen Build-Schritt; der Fortschritt wird nur lokal im Browser gespe
 
 In den Einstellungen lassen sich Groß-/Kleinschreibung und Satzzeichen fürs Lernen, die
 Bildschirmtastatur, das Ziel-Tempo (Standard 150 Anschläge/min) und die drei Werte fürs
-Freischalten einstellen; dort lässt sich der nächste Buchstabe auch von Hand freischalten.
+Freischalten einstellen; dort lässt sich der nächste Buchstabe auch von Hand freischalten. Ein Klick auf einen
+gesperrten Buchstaben schaltet alle bis dorthin frei – praktisch, um auf einem zweiten Gerät
+mit demselben Stand weiterzumachen (die Statistik fängt dort neu an).
 
 ## Belegung aktualisieren
 

@@ -100,6 +100,8 @@ button.dezent { color: var(--leise); }
   font-weight: 600; background: var(--fl); border: 1px solid var(--linie); color: var(--leise);
 }
 #buchstaben span.offen { color: #fff; border-color: transparent; }
+#buchstaben span.gesperrt { cursor: pointer; }
+#buchstaben span.gesperrt:hover { border-color: var(--akzent); color: var(--text); }
 #buchstaben span.fokus { outline: 3px solid var(--ziel); outline-offset: 1px; }
 #naechster { text-align: center; margin: -12px 0 16px; min-height: 1.5em; }
 

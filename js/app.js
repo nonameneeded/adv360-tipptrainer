@@ -532,7 +532,9 @@ function zeichneBuchstaben() {
         : "noch nicht geübt";
       if (z === f) s.classList.add("fokus");
     } else {
-      s.title = i === fort.frei ? "kommt als Nächstes" : "noch gesperrt";
+      s.title = (i === fort.frei ? "kommt als Nächstes" : "noch gesperrt") + " – klicken zum Freischalten";
+      s.dataset.bis = i + 1;
+      s.classList.add("gesperrt");
     }
     el.appendChild(s);
   });
@@ -794,6 +796,18 @@ $("freischalten").addEventListener("click", (e) => {
   sichern(`${SPEICHER}.${opt.layout}`, fort);
   allesNeu();
   melde(`Neuer Buchstabe: ${neu} (von Hand freigeschaltet)`);
+});
+// Klick auf einen gesperrten Buchstaben: alle bis dorthin freischalten (z. B. auf einem zweiten Gerät)
+$("buchstaben").addEventListener("click", (e) => {
+  const bis = Number(e.target.dataset?.bis);
+  if (!bis || bis <= fort.frei) return;
+  const neu = REIHENFOLGE.slice(fort.frei, bis).split("").join(" ");
+  if (!confirm(`Alle Buchstaben bis „${REIHENFOLGE[bis - 1]}“ freischalten (${neu})?`)) return;
+  fort.frei = bis;
+  fort.seitFrei = 0;
+  sichern(`${SPEICHER}.${opt.layout}`, fort);
+  allesNeu();
+  melde(`Freigeschaltet: ${neu} (von Hand)`);
 });
 $("zuruecksetzen").addEventListener("click", () => {
   if (!confirm(`Fortschritt für ${opt.layout === "bone" ? "Bone" : "QWERTZ"} löschen?`)) return;
